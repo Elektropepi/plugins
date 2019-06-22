@@ -63,6 +63,7 @@ public:
     QString profilesIniPath;
     QString currentProfileId;
     QString dbPath;
+    QString tempDbPath;
     QFileSystemWatcher databaseWatcher;
 
     vector<shared_ptr<Core::StandardIndexItem>> index;
@@ -78,10 +79,10 @@ public:
 
 /** ***************************************************************************/
 void FirefoxBookmarks::Private::startIndexing() {
-
     // Never run concurrent
     if ( futureWatcher.future().isRunning() )
         return;
+    QFile::copy(dbPath, tempDbPath);
 
     // Run finishIndexing when the indexing thread finished
     futureWatcher.disconnect();
@@ -123,7 +124,7 @@ FirefoxBookmarks::Private::indexFirefoxBookmarks() const {
 
     {
         QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE", q->Core::Plugin::id());;
-        database.setDatabaseName(dbPath);
+        database.setDatabaseName(tempDbPath);
 
         if (!database.open()) {
             qWarning() << qPrintable(QString("Could not open Firefox database: %1").arg(database.databaseName()));
@@ -394,9 +395,12 @@ void FirefoxBookmarks::Extension::setProfile(const QString& profile) {
 
     // Build the database path
     QString dbPath = QString("%1/places.sqlite").arg(profilePath);
+    QString tempDbPath = QString("%1/places_albert.sqlite").arg(profilePath);
+
 
     // Set the databases path
     d->dbPath = dbPath;
+    d->tempDbPath = tempDbPath;
 
     // Set a file system watcher on the database monitoring changes
     if (!d->databaseWatcher.files().isEmpty())
