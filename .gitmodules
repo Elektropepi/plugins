@@ -3,4 +3,4 @@
 	url = https://github.com/pybind/pybind11.git
 [submodule "python/share/modules"]
 	path = python/share/modules
-	url = https://github.com/albertlauncher/python.git
+	url = git@github.com:Elektropepi/python.git
