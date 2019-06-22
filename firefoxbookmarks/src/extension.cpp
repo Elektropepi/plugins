@@ -375,15 +375,22 @@ void FirefoxBookmarks::Extension::setProfile(const QString& profile) {
     profilesIni.beginGroup(d->currentProfileId);
 
     // Check if the profile contains a path key
-    if ( !profilesIni.contains("Path") ){
-        qWarning() << qPrintable(QString("Firefox profile '%2' does not contain a path.").arg(d->currentProfileId));
+    if ( !profilesIni.contains("Path") && !profilesIni.contains("Default") ){
+        qWarning() << qPrintable(QString("Firefox profile '%2' neither contains Path nor Default.").arg(d->currentProfileId));
         return;
     }
 
-    // Get the correct absolute profile path
-    QString profilePath = ( profilesIni.contains("IsRelative") && profilesIni.value("IsRelative").toBool())
-            ? QFileInfo(d->profilesIniPath).dir().absoluteFilePath(profilesIni.value("Path").toString())
-            : profilesIni.value("Path").toString();
+    QString profilePath;
+    if(profilesIni.contains("Path")) {
+        qInfo() << "Using Path instead of Default.";
+        // Get the correct absolute profile path
+        profilePath = ( profilesIni.contains("IsRelative") && profilesIni.value("IsRelative").toBool())
+                      ? QFileInfo(d->profilesIniPath).dir().absoluteFilePath(profilesIni.value("Path").toString())
+                      : profilesIni.value("Path").toString();
+    } else {
+        qInfo() << "Using Default instead of Path.";
+        profilePath = QFileInfo(d->profilesIniPath).dir().absoluteFilePath(profilesIni.value("Default").toString());
+    }
 
     // Build the database path
     QString dbPath = QString("%1/places.sqlite").arg(profilePath);
