@@ -82,7 +82,12 @@ void FirefoxBookmarks::Private::startIndexing() {
     // Never run concurrent
     if ( futureWatcher.future().isRunning() )
         return;
-    QFile::copy(dbPath, tempDbPath);
+
+  if (QFile::exists(tempDbPath))
+  {
+    QFile::remove(tempDbPath);
+  }
+  QFile::copy(dbPath, tempDbPath);
 
     // Run finishIndexing when the indexing thread finished
     futureWatcher.disconnect();
