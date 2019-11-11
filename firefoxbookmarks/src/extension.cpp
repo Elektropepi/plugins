@@ -83,11 +83,14 @@ void FirefoxBookmarks::Private::startIndexing() {
     if ( futureWatcher.future().isRunning() )
         return;
 
+  qInfo() << "ALBEXT Exists Before rm: " << QFile::exists(tempDbPath);
   if (QFile::exists(tempDbPath))
   {
-    QFile::remove(tempDbPath);
+    qInfo() << "ALBEXT remove result: " << QFile::remove(tempDbPath);
   }
-  QFile::copy(dbPath, tempDbPath);
+  qInfo() << "ALBEXT Exists After rm: " << QFile::exists(tempDbPath);
+  qInfo() << "ALBEXT copy result: " << QFile::copy(dbPath, tempDbPath);
+  qInfo() << "ALBEXT Exists After cp: " << QFile::exists(tempDbPath);
 
     // Run finishIndexing when the indexing thread finished
     futureWatcher.disconnect();
